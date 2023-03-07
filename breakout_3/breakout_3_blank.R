@@ -5,11 +5,11 @@ library(tidyr)
 ## Read in the Data ----
 adsl <- readRDS(here::here('data', 'adsl.rds'))
 
-## If you need help, you can follow these two vignettes: 
+## If you need help, you can follow these two vignettes:
 ## https://atorus-research.github.io/Tplyr/articles/metadata.html
 ## https://atorus-research.github.io/Tplyr/articles/custom-metadata.html
 
-# Note: Remember that CDISC variable will be uppercase, and R is case sensitive. 
+# Note: Remember that CDISC variable will be uppercase, and R is case sensitive.
 
 ## Problem 1 - Create a demographics table summarizing AGE, AGEGR1, and Race ----
 # Summarize data for adsl
@@ -18,19 +18,32 @@ adsl <- readRDS(here::here('data', 'adsl.rds'))
 # For AGE, set a row label value of "Age (years)"
 # For AGEGR1, set a row label value of "Age Group n (%)"
 # For RACE, set a row label of "Race n (%)"
-t <- 
-  
-dat <- t %>% build()
+t <-
+  adsl |>
+  tplyr_table(treat_var = TRT01P, where = SAFFL == "Y") |>
+  add_layer(group_count(AGEGR1, by = "Age Group n (%)")) |>
+  add_layer(group_desc(AGE, by = "Age (years)")) |>
+  add_layer(group_count(RACE, by = "Race n (%)"))
+
+dat <-
+  t |>
+  build()
+
 dat
 
 
 ## Problem 2 - Using the same table produced above, build the Tplyr metadata, then examine the metadata dataframe ----
 # Use the metadata=TRUE argument on build
 # Use get_metadata() to look at the table metadata
-t <- 
+t <-
+  adsl |>
+  tplyr_table(treat_var = TRT01P, where = SAFFL == "Y") |>
+  add_layer(group_count(AGEGR1, by = "Age Group n (%)")) |>
+  add_layer(group_desc(AGE, by = "Age (years)")) |>
+  add_layer(group_count(RACE, by = "Race n (%)"))
 
-dat <- 
-meta <- 
+dat <- t |> build(metadata = TRUE)
+meta <- get_metadata(t)
 meta
 
 
@@ -38,19 +51,29 @@ meta
 # Find the row_id for Placebo subjects with a RACE of BLACK OR AFRICAN AMERICAN
 # Use get_meta_result() to extract the tplyr_meta() object
 # Helper to find the correct row_id
-dat %>%
-  filter(row_label2 == "BLACK OR AFRICAN AMERICAN")
+dat |>
+  filter(row_label2 == "BLACK OR AFRICAN AMERICAN") |>
+  pull(row_id) |>
+  get_meta_result(x = t, row_id = _, column = "var1_Placebo") ->
+  m_res
 
-result <- 
-result
+m_res
+
 
 ## Problem 4 - Using the same information as above, look at the relevant subset of data ----
 # Choose the same row_id and use the function get_meta_subset()
 # Helper to find the correct row_id
-dat %>%
-  filter(row_label2 == "BLACK OR AFRICAN AMERICAN")
+dat |>
+  filter(row_label2 == "BLACK OR AFRICAN AMERICAN") |>
+  pull(row_id) |>
+  get_meta_subset(x = t, row_id = _, column = "var1_Placebo") ->
+  m_sub
 
-sub <- 
+sub <-
+  adsl |>
+  filter(!!!m_res$filters) |>
+  select(!!!m_res$names, any_of("USUBJID"))
+
 sub
 
 ######## Problem 5 continues down below - this is some pre-work necessary for remaining questions ----
