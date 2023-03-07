@@ -10,4 +10,4 @@ Welcome to the GitHub repository for Drill Down Summary Tables in SHiny with Tpl
 | Breakout 4       | Make a Shiny App with Drill Down Features    |
 | Breakout 5       | Make Another App with Extended Metadata      |
 
-https://atorus-research.github.io/Tplyr/index.html
+https://atorus-research.github.io/Tplyr/
