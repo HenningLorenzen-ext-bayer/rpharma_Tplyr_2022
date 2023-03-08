@@ -128,23 +128,29 @@ results <- bind_rows(sum_data, model_portion) %>%
 
 ### End pre-work ----
 ## Problem 5 - Create a tplyr_meta() object, then create three other tplyr_meta objects by expanding the first one ----
-# Create a tplyr_meta object 
+# Create a tplyr_meta object
 #   - Set the name to TRTP, EFFFL, ITTFL, ANL01FL, SITEGR1, AVISIT, AVISITN, PARAMCD, AVAL, BASE, CHG
 #   - Set the filters to EFFFL == "Y", ITTFL == "Y", PARAMCD == "ACTOT", ANL01FL == "Y", AVISITN == 24
 # Note: Remember to use the quos() function when supplying names and filters.
 # Create the second tplyr_meta() object by adding the filter `TRTP %in% c("Xanomeline High Dose", "Placebo")`
 # Create the third tplyr_meta() object by adding the filter `TRTP %in% c("Xanomeline Low Dose", "Placebo")`
 # Create the fourth tplyr_meta object by adding the filter `TRTP %in% c("Xanomeline High Dose", "Xanomeline Low Dose")`
-meta <- 
+meta <- tplyr_meta(
+  names = quos(TRTP, AVAL, PARAMCD, AVISIT),
+  filters = quos(SAFFL == "Y", ANL01FL == "Y")
+)
 
 # Xan High / Placebo contrast
-meta_xhp <- 
+meta_xhp <- meta |>
+  add_filters(quos(TRTP %in% c("Xanomeline High Dose", "Placebo")))
 
 # Xan Low / Placbo Contrast
-meta_xlp <- 
+meta_xlp <- meta |>
+  add_filters(quos(TRTP %in% c("Xanomeline High Dose", "Placebo")))
 
 # Xan High / Xan Low Contrast
-meta_xlh <- 
+meta_xlh <- meta |>
+  add_filters(quos(TRTP %in% c("Xanomeline High Dose", "Xanomeline Low Dose")))
 
 ## Problem 6 - Create a metadata dataframe and bind it to the Tplyr table's metadata
 # The metadata dataframe is pre-prepared for you
@@ -161,6 +167,8 @@ eff_meta <- tibble::tribble(
   "x4_9",    "   95% CI",                          NULL,                        meta_xlh
 )
 
-t <- 
-new_meta <- 
+
+t <- append_metadata(t, eff_meta)
+
+new_meta <- get_metadata(t)
 new_meta
