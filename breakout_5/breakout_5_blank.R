@@ -18,10 +18,10 @@ ui <- fillPage(
 )
 
 server <- function(input, output) {
-  
+
   row <- reactive(results[input$row$index,1]$row_id)
   col <- reactive(input$col$column)
-  
+
   output$demoTab <- renderReactable(
     reactable(
       select(results, -row_id, -starts_with("ord")),
@@ -43,13 +43,13 @@ server <- function(input, output) {
       )
     )
   )
-  
+
   sub_data <- reactive({
     req(row(), col())
     tmp <- get_meta_subset(t, row(), col())
     tmp
   })
-  
+
   output$demoList<- renderReactable({
     req(sub_data())
     reactable(
